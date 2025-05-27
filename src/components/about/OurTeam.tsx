@@ -1,18 +1,18 @@
-
 import SectionHeading from "../common/SectionHeading";
 import AnimatedCard from "../common/AnimatedCard";
-import { LinkedinIcon, Github, Mail } from "lucide-react";
+import { LinkedinIcon, Github, Mail, Globe } from "lucide-react";
 
 interface TeamMember {
   name: string;
   role: string;
   bio: string;
   image: string;
-  email?: string; // Added optional email property
+  email?: string;
   socialLinks?: {
     twitter?: string;
     linkedin?: string;
     github?: string;
+    portfolio?: string;
   };
 }
 
@@ -20,12 +20,39 @@ interface OurTeamProps {
   teamMembers?: TeamMember[];
 }
 
-const defaultTeamMembers = [
+const defaultTeamMembers: TeamMember[] = [
   {
     name: "Mayur Bodkhe",
     role: "Founder & CEO",
     bio: "Mayur is a visionary leader with extensive experience in IT solutions and business strategy. He founded TVM IT Solutions with the goal of helping businesses leverage technology for growth.",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80",
+    email: "mayurbodkhe7918@gmail.com",
+    socialLinks: {
+      linkedin: "https://linkedin.com",
+      github: "https://github.com",
+    }
+  },
+  {
+    name: "Vijay Kakde",
+    role: "Chief Financial Officer",
+    bio: "Strategic financial leader with a strong background in technology sector finance. Oversees financial planning, risk management, and sustainable growth initiatives at TVM IT Solutions.",
+    image: "/lovable-uploads/03d8a4a3-9ab6-4b53-b67c-48f1133fb74f.png",
+    email: "cfo@tvmitsolutions.com",
+    socialLinks: {
+      linkedin: "https://linkedin.com"
+    }
+  },
+  {
+    name: "Tejas Kale",
+    role: "Chief Technology Officer (CTO)",
+    bio: "Tech-driven problem solver leading innovation at TVM IT Solutions. Specializes in Android development, AI integration, and cloud-based architectures. Passionate about building scalable tech for the future.",
+      image: "/img/cto.jpg", // Replace with actual image path
+    email: "cse.tejas@gmail.com",
+    socialLinks: {
+      linkedin: "https://www.linkedin.com/in/tejas-kale-65419a24b",
+      github: "https://github.com/TG404-JV",
+      portfolio: "https://tejasportfolio-git-main-tejas-kales-projects.vercel.app/"
+    }
   }
 ];
 
@@ -56,16 +83,40 @@ const OurTeam = ({ teamMembers = defaultTeamMembers }: OurTeamProps) => {
                   <p className="text-tvm-gray mb-6">{member.bio}</p>
                   <div className="flex space-x-3">
                     {member.socialLinks?.linkedin && (
-                      <a href={member.socialLinks.linkedin} className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors">
+                      <a
+                        href={member.socialLinks.linkedin}
+                        className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <LinkedinIcon size={18} />
                       </a>
                     )}
                     {member.socialLinks?.github && (
-                      <a href={member.socialLinks.github} className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors">
+                      <a
+                        href={member.socialLinks.github}
+                        className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Github size={18} />
                       </a>
                     )}
-                    <a href={`mailto:${member.email || 'info@tvmitsolutions.com'}`} className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors">
+                    {member.socialLinks?.portfolio && (
+                      <a
+                        href={member.socialLinks.portfolio}
+                        className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Portfolio"
+                      >
+                        <Globe size={18} />
+                      </a>
+                    )}
+                    <a
+                      href={`mailto:${member.email || "info@tvmitsolutions.com"}`}
+                      className="p-2 bg-tvm-blue/10 text-tvm-blue rounded-full hover:bg-tvm-blue hover:text-white transition-colors"
+                    >
                       <Mail size={18} />
                     </a>
                   </div>
