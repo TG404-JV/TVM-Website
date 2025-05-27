@@ -177,6 +177,8 @@ const GlowSphere = () => {
         color="#3DDC84"
         opacity={0.05}
         transparent={true}
+        distortionScale={0}
+        temporalDistortion={0}
       />
     </mesh>
   );
