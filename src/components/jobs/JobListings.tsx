@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { db } from "@/integrations/firebase/config"; // Adjust path to your Firebase config
+import { db } from "@/integrations/firebase/config";
 import { collection, getDocs } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
 
@@ -27,12 +27,19 @@ const JobListings = () => {
         id: doc.id,
         ...doc.data(),
       } as Job));
+      console.log("Fetched jobs:", jobsData); // Debug log
       setJobs(jobsData);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching jobs:", error);
+      let errorMessage = "Failed to load job listings. Please try again later.";
+      if (error.code === "permission-denied") {
+        errorMessage = "Permission denied. Please check Firestore security rules.";
+      } else if (error.code === "unavailable") {
+        errorMessage = "Network error. Please check your internet connection.";
+      }
       toast({
         title: "Error",
-        description: "Failed to load job listings. Please try again later.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -47,8 +54,9 @@ const JobListings = () => {
   const filteredJobs = jobs.filter((job) => {
     const matchesCategory = selectedCategory === "All Categories" || job.category === selectedCategory;
     const matchesExperience = selectedExperience === "All Levels" || job.experienceLevel === selectedExperience;
-    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          job.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = 
+      (job.title?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false) || 
+      (job.description?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false);
     
     return matchesCategory && matchesExperience && matchesSearch;
   });
