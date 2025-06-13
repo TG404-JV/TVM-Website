@@ -99,15 +99,7 @@ const HeroSection = () => {
                 <ArrowRight size={18} className="ml-2" aria-hidden="true" />
               </Button>
               
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 shadow-md hover:shadow-lg transition-all duration-300 px-8 py-3"
-                onClick={() => window.location.href = '/portfolio'}
-              >
-                <Play size={18} className="mr-2" />
-                Watch Demo
-              </Button>
+        
             </div>
 
             {/* Trust Indicators */}
